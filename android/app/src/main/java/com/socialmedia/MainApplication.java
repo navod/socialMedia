@@ -1,4 +1,4 @@
-package com.socialmedia;
+package com.socialmedia_navod81;
 
 import android.app.Application;
 import android.content.Context;
