@@ -1,0 +1,121 @@
+import {NativeBaseProvider, Text} from 'native-base';
+import React from 'react';
+import {
+  View,
+  FlatList,
+  Dimensions,
+  ScrollView,
+  TouchableOpacity,
+  Modal,
+  StyleSheet,
+  Text as Word,
+} from 'react-native';
+import FastImage from 'react-native-fast-image';
+import Swiper from 'react-native-swiper';
+import {useState} from 'react/cjs/react.development';
+import Header from '../components/CreatePostScreen/Header';
+import SampleData from '../data/SampleData';
+
+export default function ImageView() {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [img, setImg] = useState(0);
+  return (
+    <View style={{backgroundColor: 'white', flex: 1, paddingHorizontal: 2}}>
+      <NativeBaseProvider>
+        <Header
+          name="Photos"
+          onClose={() => {
+            setModalVisible(false);
+            console.log('hello');
+          }}
+        />
+        <FlatList
+          data={SampleData}
+          keyExtractor={(item, index) => index}
+          numColumns={4}
+          // contentContainerStyle={{backgroundColor: 'white', flex: 1}}
+          renderItem={({item, index}) => (
+            <TouchableOpacity
+              onPress={() => {
+                setImg(index);
+                setModalVisible(true);
+              }}
+              style={{
+                width: '25%',
+                height: screen.width / 4,
+                // flex: 0.5,
+                backgroundColor: 'white',
+                padding: 2,
+                borderRadius: 4,
+              }}>
+              <FastImage
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  // flex: 0.5,
+                  backgroundColor: 'white',
+                  //   margin: 2,
+                  borderRadius: 4,
+                }}
+                source={{
+                  uri: item,
+                  priority: FastImage.priority.normal,
+                }}
+                resizeMode={FastImage.resizeMode.cover}
+              />
+            </TouchableOpacity>
+          )}
+        />
+        {/* <View style={{width: 20, height: 300}}></View> */}
+      </NativeBaseProvider>
+
+      <Modal
+        animationType="slide"
+        transparent={false}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}>
+        <Swiper
+          index={img}
+          dot={<View style={styles.dot} />}
+          activeDot={<View style={styles.dot} />}
+          height={screen.height / 1.6}
+          containerStyle={{marginTop: 10}}>
+          {SampleData.map((images, index) => (
+            <FastImage
+              key={index}
+              style={{
+                width: '100%',
+                height: '100%',
+              }}
+              source={{
+                uri: images,
+                priority: FastImage.priority.normal,
+              }}
+              resizeMode={FastImage.resizeMode.contain}
+            />
+          ))}
+        </Swiper>
+        {/* <Word>
+            {SampleData.length}/ {img}
+          </Word> */}
+      </Modal>
+    </View>
+  );
+}
+
+const screen = Dimensions.get('screen');
+
+const styles = StyleSheet.create({
+  dot: {
+    backgroundColor: 'rgba(0,0,0,.2)',
+    width: 0,
+    height: 0,
+    borderRadius: 4,
+    marginLeft: 3,
+    marginRight: 3,
+    marginTop: 3,
+    marginBottom: 3,
+  },
+});
