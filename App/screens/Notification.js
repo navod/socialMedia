@@ -1,10 +1,14 @@
+import {NativeBaseProvider} from 'native-base';
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
+import Header from '../components/NotificationScreen/Header';
 
 export default function Notification() {
   return (
     <View style={styles.container}>
-      <Text>Notification</Text>
+      <NativeBaseProvider>
+        <Header />
+      </NativeBaseProvider>
     </View>
   );
 }

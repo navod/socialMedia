@@ -2,24 +2,16 @@ import {Text} from 'native-base';
 import React from 'react';
 import {View, StyleSheet, TouchableOpacity} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-export default function Header({onClose, name, states}) {
+export default function Header({}) {
   return (
     <View style={styles.header}>
-      <TouchableOpacity
-        style={{marginLeft: -40}}
-        onPress={() => onClose(false)}>
-        <MaterialIcons name="keyboard-arrow-left" size={40} />
-      </TouchableOpacity>
-      <Text fontSize="xl" fontWeight="bold">
-        {name}
-      </Text>
+      <Ionicons  name="notifications" size={30} />
 
-      <TouchableOpacity style={{marginRight: -30}}>
-        <Text fontWeight="bold" fontSize={'xs'}>
-          Done
-        </Text>
-      </TouchableOpacity>
+      <Text fontSize="xl" fontWeight="bold" paddingLeft={4}>
+        Notification
+      </Text>
     </View>
   );
 }
@@ -39,7 +31,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     flexDirection: 'row',
     paddingHorizontal: 10,
-    justifyContent: 'space-around',
+    // justifyContent: 'space-around',
     alignItems: 'center',
   },
 });

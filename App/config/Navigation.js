@@ -4,9 +4,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import Login from '../screens/Login';
 import SignUp from '../screens/SignUp';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {FontAwesome5} from 'react-native-vector-icons/FontAwesome5';
 import UserDetails from '../screens/UserDetails';
-import Example from '../screens/Example';
 import HomScreen from '../screens/HomScreen';
 import Search from '../screens/Search';
 import CreatePost from '../screens/CreatePost';
@@ -17,6 +15,7 @@ import {
   Image,
   Modal,
   StyleSheet,
+  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -24,10 +23,15 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../constants/colors';
-import {Text} from 'native-base';
 import {useState} from 'react/cjs/react.development';
 import ImageView from '../screens/ImageView';
-import {backgroundColor, zIndex} from 'styled-system';
+import All from '../components/searchScreen/All';
+import People from '../components/searchScreen/People';
+import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
+import FollowRequests from '../components/NotificationScreen/FollowRequests';
+import Activity from '../components/NotificationScreen/Activity';
+import Header from '../components/NotificationScreen/Header';
+import {NativeBaseProvider} from 'native-base';
 
 const MainStack = createStackNavigator();
 
@@ -42,6 +46,56 @@ const MainStackScreen = () => (
 );
 
 const ModalStack = createStackNavigator();
+const TopTab = createMaterialTopTabNavigator();
+
+const TopTabScreen = () => {
+  return (
+    <View style={{flex: 1}}>
+      <Search />
+      <TopTab.Navigator>
+        <TopTab.Screen name="All" component={All} />
+        <TopTab.Screen name="People" component={People} />
+      </TopTab.Navigator>
+    </View>
+  );
+};
+
+const NotificationTopBar = () => {
+  return (
+    <View style={{flex: 1}}>
+      <NativeBaseProvider>
+        <Header />
+        <TopTab.Navigator>
+          <TopTab.Screen
+            options={{
+              // tabBarIcon: ({focused}) => (
+              //   <View>
+              //     <Text
+              //       style={{
+              //         color: focused ? colors.primary : colors.lightGray,
+              //         borderWidth: 1,
+              //         width: 100,
+              //         height: '100%',
+              //       }}>
+              //       Text
+              //     </Text>
+              //   </View>
+              // ),
+              // tabBarPressColor: 'red',
+              // tabBarActiveTintColor: 'blue',
+
+              headerShown: false,
+              // tabBarShowLabel: false,
+            }}
+            name="FollowRequests"
+            component={FollowRequests}
+          />
+          <TopTab.Screen name="Activity" component={Activity} />
+        </TopTab.Navigator>
+      </NativeBaseProvider>
+    </View>
+  );
+};
 
 let tabOffSet = 0;
 const Tab = createBottomTabNavigator();
@@ -81,8 +135,8 @@ const BottomTabScreen = () => {
           })}
         />
         <Tab.Screen
-          name="Search"
-          component={Search}
+          name="TopTabScreen"
+          component={TopTabScreen}
           options={{
             tabBarIcon: ({focused}) => (
               <View>
@@ -110,27 +164,7 @@ const BottomTabScreen = () => {
           component={CreatePost}
           options={{
             headerShown: false,
-            tabBarItemStyle: {
-              position: 'absolute',
-              backgroundColor: colors.primary,
-              height: 60,
-              width: 60,
-              bottom: 30,
-              borderRadius: 60,
-              left: getWidth() * 2.04,
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 1,
-              shadowColor: '#000',
-              shadowOffset: {
-                width: 0,
-                height: 4,
-              },
-              shadowOpacity: 0.3,
-              shadowRadius: 4.65,
-
-              elevation: 8,
-            },
+            tabBarItemStyle: styles.tabBarItemStyle,
             tabBarIcon: ({focused}) => (
               <Image
                 source={require('../assets/icons/plus.png')}
@@ -141,8 +175,8 @@ const BottomTabScreen = () => {
         />
 
         <Tab.Screen
-          name="Notification"
-          component={Notification}
+          name="NotificationTopBar"
+          component={NotificationTopBar}
           options={{
             tabBarIcon: ({focused}) => (
               <View>
@@ -154,6 +188,7 @@ const BottomTabScreen = () => {
               </View>
             ),
             tabBarItemStyle: {marginLeft: 40},
+            headerShown: false,
           }}
           listeners={({navigation, route}) => ({
             tabPress: e => {
@@ -284,5 +319,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1,
+  },
+
+  tabBarItemStyle: {
+    position: 'absolute',
+    backgroundColor: colors.primary,
+    height: 60,
+    width: 60,
+    bottom: 30,
+    borderRadius: 60,
+    left: getWidth() * 2.04,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+
+    elevation: 8,
   },
 });

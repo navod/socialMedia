@@ -1,4 +1,4 @@
-import {NativeBaseProvider, Text} from 'native-base';
+import {Button, NativeBaseProvider, Tex, Menu} from 'native-base';
 import React from 'react';
 import {
   View,
@@ -15,10 +15,16 @@ import Swiper from 'react-native-swiper';
 import {useState} from 'react/cjs/react.development';
 import Header from '../components/CreatePostScreen/Header';
 import SampleData from '../data/SampleData';
+import Entypo from 'react-native-vector-icons/Entypo';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import colors from '../constants/colors';
 
 export default function ImageView() {
   const [modalVisible, setModalVisible] = useState(false);
   const [img, setImg] = useState(0);
+  const [shouldOverlapWithTrigger] = useState(false);
+  const [position, setPosition] = useState('auto');
+
   return (
     <View style={{backgroundColor: 'white', flex: 1, paddingHorizontal: 2}}>
       <NativeBaseProvider>
@@ -76,27 +82,74 @@ export default function ImageView() {
         onRequestClose={() => {
           setModalVisible(!modalVisible);
         }}>
-        <Swiper
-          index={img}
-          dot={<View style={styles.dot} />}
-          activeDot={<View style={styles.dot} />}
-          height={screen.height / 1.6}
-          containerStyle={{marginTop: 10}}>
-          {SampleData.map((images, index) => (
-            <FastImage
-              key={index}
-              style={{
-                width: '100%',
-                height: '100%',
-              }}
-              source={{
-                uri: images,
-                priority: FastImage.priority.normal,
-              }}
-              resizeMode={FastImage.resizeMode.contain}
-            />
-          ))}
-        </Swiper>
+        <NativeBaseProvider>
+          {/* <Word style={styles.btn}>Hello</Word> */}
+
+          <Swiper
+            index={img}
+            dot={<View style={styles.dot} />}
+            activeDot={<View style={styles.dot} />}
+            height={screen.height / 1.6}
+            containerStyle={{marginTop: 10}}>
+            {SampleData.map((images, index) => (
+              <FastImage
+                key={index}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                }}
+                source={{
+                  uri: images,
+                  priority: FastImage.priority.normal,
+                }}
+                resizeMode={FastImage.resizeMode.contain}
+              />
+            ))}
+          </Swiper>
+          <Menu
+            shouldOverlapWithTrigger={shouldOverlapWithTrigger} // @ts-ignore
+            placement={position == 'auto' ? undefined : position}
+            trigger={triggerProps => {
+              return (
+                <Button
+                  style={styles.btn}
+                  // alignSelf="center"
+                  variant="unstyled"
+                  {...triggerProps}>
+                  <Entypo
+                    name="dots-three-vertical"
+                    size={15}
+                    color="black"
+                    {...triggerProps}
+                    style={{zIndex: 2, marginLeft: -3}}
+                  />
+                </Button>
+              );
+            }}>
+            <Menu.Item style={{flexDirection: 'row', alignItems: 'center'}}>
+              <AntDesign
+                name="delete"
+                size={18}
+                color="red"
+                style={{paddingRight: 10}}
+              />
+              <Word style={{paddingRight: 15, color: colors.lightGray}}>
+                Delete
+              </Word>
+            </Menu.Item>
+            <Menu.Item style={{flexDirection: 'row', alignItems: 'center'}}>
+              <AntDesign
+                name="edit"
+                size={18}
+                color={colors.lightGray}
+                style={{paddingRight: 10}}
+              />
+              <Word style={{paddingRight: 15, color: colors.lightGray}}>
+                Edit
+              </Word>
+            </Menu.Item>
+          </Menu>
+        </NativeBaseProvider>
         {/* <Word>
             {SampleData.length}/ {img}
           </Word> */}
@@ -117,5 +170,23 @@ const styles = StyleSheet.create({
     marginRight: 3,
     marginTop: 3,
     marginBottom: 3,
+  },
+  btn: {
+    position: 'absolute',
+    right: 10,
+    top: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 30,
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    flex: 1,
   },
 });
