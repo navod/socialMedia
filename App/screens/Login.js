@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {View, Text, StyleSheet, Dimensions, ScrollView} from 'react-native';
 import colors from '../constants/colors';
 import MaterialIcons from 'react-native-vector-icons/FontAwesome';
@@ -12,19 +12,83 @@ import {
   Center,
   NativeBaseProvider,
   Button,
+  Alert,
 } from 'native-base';
 import GoogleButton from '../components/GoogleButton';
 import FacebookBtn from '../components/FacebookBtn';
 import {KeyBoardSpacer} from '../components/KeyBoardSpacer';
+import auth from '@react-native-firebase/auth';
+import {AuthContext} from '../util/AuthContext';
 
 export default function Login({navigation}) {
   const [show, setShow] = useState(false);
   const [scrollEnabled, setScrollEnabled] = useState(false);
 
+  const [status, setStatus] = useState(false);
+  const [alerDetails, setAlertDetails] = useState({
+    title: '',
+    states: '',
+  });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const handleClick = () => setShow(!show);
+
+  const {siginIn} = useContext(AuthContext);
+  const loginUser = () => {
+    if (email == '' || password == '') {
+      setStatus(true);
+      setAlertDetails({
+        title: 'Please fill the all details',
+        states: 'warning',
+      });
+    } else {
+      auth()
+        .signInWithEmailAndPassword(email, password)
+        .then(res => {
+          siginIn(email);
+        })
+        .catch(error => {
+          if (error.code === 'auth/user-not-found') {
+            console.log(error);
+
+            setStatus(true);
+            setAlertDetails({
+              title: 'Account does not exist',
+              states: 'error',
+            });
+          } else if (error.code === 'auth/invalid-email') {
+            console.log(error);
+
+            setStatus(true);
+            setAlertDetails({
+              title: 'That email address is invalid!',
+              states: 'error',
+            });
+          } else {
+            console.log(error);
+            setStatus(true);
+
+            setAlertDetails({
+              title:
+                'The password is invalid or the user does not have a password.',
+              states: 'warning',
+            });
+          }
+        });
+    }
+  };
   return (
     <NativeBaseProvider>
       <View style={styles.container}>
+        {!alerDetails.title == '' && (
+          <Alert
+            variant="left-accent"
+            status={alerDetails.states}
+            style={{position: 'absolute', right: 0, top: 20}}>
+            <Alert.Icon />
+            <Alert.Title flexShrink={1}>{alerDetails.title}</Alert.Title>
+          </Alert>
+        )}
         <ScrollView scrollEnabled={scrollEnabled}>
           <Text style={styles.headerText}>Sign In Now</Text>
           <Text style={styles.subText}>
@@ -50,7 +114,9 @@ export default function Login({navigation}) {
                   }}
                 />
               }
+              value={email}
               placeholder="jhon@gmail.com"
+              onChangeText={text => setEmail(text)}
             />
             <View
               style={{
@@ -90,6 +156,8 @@ export default function Login({navigation}) {
                   }}
                 />
               }
+              value={password}
+              onChangeText={text => setPassword(text)}
               type={show ? 'text' : 'password'}
               InputRightElement={
                 <Button
@@ -119,10 +187,7 @@ export default function Login({navigation}) {
               }}
             />
           </View>
-          <Button
-            colorScheme="blue"
-            size="lg"
-            onPress={() => navigation.push('BottomTabScreen')}>
+          <Button colorScheme="blue" size="lg" onPress={() => loginUser()}>
             Sign In
           </Button>
 

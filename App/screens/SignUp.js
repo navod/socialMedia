@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   Text,
@@ -27,6 +27,7 @@ import {
 } from 'native-base';
 import {KeyBoardSpacer} from '../components/KeyBoardSpacer';
 import auth from '@react-native-firebase/auth';
+import {AuthContext} from '../util/AuthContext';
 
 export default function SignUp({navigation}) {
   const [show, setShow] = useState(false);
@@ -41,42 +42,60 @@ export default function SignUp({navigation}) {
     states: '',
   });
   const handleClick = () => setShow(!show);
+
+  const loginHandle = () => {
+    siginIn(email);
+  };
+
+  const {siginIn} = useContext(AuthContext);
+
   const signInWithEmail = () => {
     if (
-      email !== '' &&
-      userName !== '' &&
-      password !== '' &&
-      confirmPassword !== ''
+      email == '' ||
+      userName == '' ||
+      password == '' ||
+      confirmPassword == ''
     ) {
-      if (confirmPassword === password) {
+      setStatus(true);
+      setAlertDetails({
+        title: 'Please fill the all details',
+        states: 'warning',
+      });
+    } else {
+      if (password === confirmPassword) {
         auth()
           .createUserWithEmailAndPassword(email, password)
-          .then(() => {
+          .then(createUser => {
+            createUser.user.updateProfile({displayName: userName});
             setStatus(true);
             setAlertDetails({title: 'Account created', states: 'success'});
+            loginHandle();
           })
           .catch(error => {
             if (error.code === 'auth/email-already-in-use') {
+              console.log(error);
               setStatus(true);
               setAlertDetails({
                 title: 'That email address is already in use!',
                 states: 'error',
               });
-            }
-
-            if (error.code === 'auth/invalid-email') {
+            } else if (error.code === 'auth/invalid-email') {
+              console.log(error);
+              setStatus(false);
               setStatus(true);
               setAlertDetails({
                 title: 'That email address is invalid!',
                 states: 'error',
               });
+            } else {
+              console.log(error);
+              setStatus(true);
+              setShow(true);
+              setAlertDetails({
+                title: 'Password should be at least 6 characters',
+                states: 'warning',
+              });
             }
-            setStatus(true);
-            setAlertDetails({
-              title: error,
-              states: 'warning',
-            });
-            console.log(error);
           });
       } else {
         setStatus(true);
@@ -85,14 +104,12 @@ export default function SignUp({navigation}) {
           states: 'warning',
         });
       }
-    } else {
-      setStatus(true);
     }
   };
 
   return (
     <NativeBaseProvider>
-      <FormControl isRequired isInvalid style={{flex: 1}}>
+      <FormControl style={{flex: 1}}>
         <View style={styles.container}>
           {!alerDetails.title == '' && (
             <Alert
@@ -137,7 +154,6 @@ export default function SignUp({navigation}) {
                 value={userName}
                 placeholder="Full name"
                 onChangeText={text => setUserName(text)}
-                isInvalid={status}
               />
               {status && (
                 <FormControl.ErrorMessage>
@@ -165,13 +181,8 @@ export default function SignUp({navigation}) {
                 placeholder="jhon@gmail.com"
                 value={email}
                 onChangeText={text => setEmail(text)}
-                isInvalid={status}
               />
-              {status && (
-                <FormControl.ErrorMessage>
-                  Please enter your password.
-                </FormControl.ErrorMessage>
-              )}
+
               <Text
                 style={{
                   color: colors.lightGray,
@@ -223,7 +234,6 @@ export default function SignUp({navigation}) {
                 _dark={{
                   placeholderTextColor: 'blueGray.50',
                 }}
-                isInvalid={status}
               />
               {status && (
                 <FormControl.ErrorMessage>

@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React, {useContext, useEffect, useMemo, useReducer, useRef} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import {NavigationContainer} from '@react-navigation/native';
 import Login from '../screens/Login';
@@ -18,6 +18,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -32,6 +33,8 @@ import FollowRequests from '../components/NotificationScreen/FollowRequests';
 import Activity from '../components/NotificationScreen/Activity';
 import Header from '../components/NotificationScreen/Header';
 import {NativeBaseProvider} from 'native-base';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {AuthContext} from '../util/AuthContext';
 
 const MainStack = createStackNavigator();
 
@@ -68,22 +71,6 @@ const NotificationTopBar = () => {
         <TopTab.Navigator>
           <TopTab.Screen
             options={{
-              // tabBarIcon: ({focused}) => (
-              //   <View>
-              //     <Text
-              //       style={{
-              //         color: focused ? colors.primary : colors.lightGray,
-              //         borderWidth: 1,
-              //         width: 100,
-              //         height: '100%',
-              //       }}>
-              //       Text
-              //     </Text>
-              //   </View>
-              // ),
-              // tabBarPressColor: 'red',
-              // tabBarActiveTintColor: 'blue',
-
               headerShown: false,
               // tabBarShowLabel: false,
             }}
@@ -291,11 +278,112 @@ const getWidth = () => {
   width = width - 80;
   return width / 5;
 };
-export default () => (
-  <NavigationContainer>
-    <ModalStackScreen />
-  </NavigationContainer>
-);
+export default () => {
+  const initialLoginState = {
+    isLoading: true,
+    userName: null,
+    userToken: null,
+  };
+
+  const loginReducer = (prevState, action) => {
+    switch (action.type) {
+      case 'RETRIVE_TOKEN':
+        return {
+          ...prevState,
+          userToken: action.token,
+          isLoading: false,
+        };
+      case 'LOGIN':
+        return {
+          ...prevState,
+          userToken: action.token,
+          isLoading: false,
+          userName: action.id,
+        };
+      case 'LOGOUT':
+        return {
+          ...prevState,
+          userToken: null,
+          isLoading: false,
+          userName: null,
+        };
+      case 'REGISTER':
+        return {
+          ...prevState,
+          userToken: action.token,
+          isLoading: false,
+          userName: action.id,
+        };
+    }
+  };
+
+  const [loginState, dispatch] = useReducer(loginReducer, initialLoginState);
+  const authContex = useMemo(
+    () => ({
+      siginIn: async user => {
+        let userToken;
+        userToken = null;
+        if (user != null) {
+          userToken = '123';
+          try {
+            await AsyncStorage.setItem('userToken', userToken);
+          } catch (e) {
+            console.log(e);
+          }
+        }
+        dispatch({type: 'LOGIN', id: user, token: userToken});
+      },
+      signOut: async () => {
+        try {
+          await AsyncStorage.removeItem('userToken');
+        } catch (e) {
+          console.log(e);
+        }
+        dispatch({type: 'LOGOUT'});
+      },
+      signUp: () => {
+        setUserToken('123');
+      },
+      checkValue: () => {
+        console.log('Wade set');
+      },
+    }),
+    [],
+  );
+
+  useEffect(() => {
+    setTimeout(async () => {
+      let userToken;
+      userToken = null;
+      try {
+        userToken = await AsyncStorage.getItem('userToken');
+      } catch (e) {
+        console.log(e);
+      }
+      dispatch({type: 'REGISTER', token: userToken});
+    }, 2000);
+  }, []);
+
+  if (loginState.isLoading) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  return (
+    <AuthContext.Provider value={authContex}>
+      <NavigationContainer>
+        {loginState.userToken !== null ? (
+          <BottomTabScreen />
+        ) : (
+          <ModalStackScreen />
+        )}
+      </NavigationContainer>
+    </AuthContext.Provider>
+  );
+};
 
 const styles = StyleSheet.create({
   tabBar: {

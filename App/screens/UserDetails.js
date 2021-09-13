@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   Text,
@@ -22,11 +22,15 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Images from '../components/UserDetailsScreen/Images';
 import EditProfile from './EditProfile';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {AuthContext} from '../util/AuthContext';
 
 export default function UserDetails({navigation}) {
   const {isOpen, onOpen, onClose} = useDisclose();
 
   const [modalVisible, setModalVisible] = useState(false);
+
+  const {signOut} = useContext(AuthContext);
+
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -129,7 +133,7 @@ export default function UserDetails({navigation}) {
                     mr={3}
                   />
                 }
-                onPress={() => alert('Logout')}>
+                onPress={() => signOut()}>
                 Logout
               </Actionsheet.Item>
             </Actionsheet.Content>
