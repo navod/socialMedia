@@ -35,6 +35,11 @@ import Header from '../components/NotificationScreen/Header';
 import {NativeBaseProvider} from 'native-base';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AuthContext} from '../util/AuthContext';
+import {
+  ConventionContex,
+  ConventionContexProvider,
+} from '../util/ConvetionContext';
+import Location from '../components/CreatePostScreen/Location';
 
 const MainStack = createStackNavigator();
 
@@ -87,6 +92,9 @@ const NotificationTopBar = () => {
 let tabOffSet = 0;
 const Tab = createBottomTabNavigator();
 const BottomTabScreen = () => {
+  // const {text} = useContext(ConventionContex);
+  // console.log(text);
+
   tabOffSet = useRef(new Animated.Value(0)).current;
   // x = tabOffSet;
   const [modalVisible, setModalVisible] = useState(false);
@@ -265,6 +273,11 @@ const ModalStackScreen = () => (
       options={{headerShown: false}}
     />
     <ModalStack.Screen
+      name="Location"
+      component={Location}
+      options={{headerShown: false}}
+    />
+    <ModalStack.Screen
       name="ImageView"
       component={ImageView}
       options={{headerShown: false}}
@@ -374,13 +387,15 @@ export default () => {
 
   return (
     <AuthContext.Provider value={authContex}>
-      <NavigationContainer>
-        {loginState.userToken !== null ? (
-          <BottomTabScreen />
-        ) : (
-          <ModalStackScreen />
-        )}
-      </NavigationContainer>
+      <ConventionContexProvider>
+        <NavigationContainer>
+          {loginState.userToken !== null ? (
+            <BottomTabScreen />
+          ) : (
+            <ModalStackScreen />
+          )}
+        </NavigationContainer>
+      </ConventionContexProvider>
     </AuthContext.Provider>
   );
 };
