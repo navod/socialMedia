@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,6 @@ import {
   Modal,
   Alert,
 } from 'react-native';
-import FastImage from 'react-native-fast-image';
 import {
   Avatar,
   NativeBaseProvider,
@@ -23,64 +22,68 @@ import Images from '../components/UserDetailsScreen/Images';
 import EditProfile from './EditProfile';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {AuthContext} from '../util/AuthContext';
+import {ConventionContex} from '../util/ConvetionContext';
+import Entypo from 'react-native-vector-icons/Entypo';
 
-export default function UserDetails({navigation}) {
+export default function UserDetails() {
   const {isOpen, onOpen, onClose} = useDisclose();
 
   const [modalVisible, setModalVisible] = useState(false);
 
-  const {signOut} = useContext(AuthContext);
+  const {signOut, checkValue} = useContext(AuthContext);
 
+  const {userName, img, bio, userId, setImg} = useContext(ConventionContex);
+
+  useEffect(() => {
+    checkValue();
+  }, []);
   return (
     <View style={styles.container}>
       <ScrollView>
         <NativeBaseProvider>
+          <View style={styles.header}>
+            <Entypo name="user" size={20} style={{paddingLeft: 20}} />
+            <Text style={styles.userName}>{userName}</Text>
+          </View>
           <View>
-            <FastImage
-              style={{
-                width: '100%',
-                height: 250,
-                borderBottomLeftRadius: 20,
-                borderBottomRightRadius: 20,
-              }}
-              source={{
-                uri: 'https://images.unsplash.com/photo-1477118476589-bff2c5c4cfbb?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80',
-                //   headers: {Authorization: 'someAuthToken'},
-                priority: FastImage.priority.normal,
-              }}
-              resizeMode={FastImage.resizeMode.cover}
-            />
-            <View style={styles.avatar}>
-              <Avatar
-                style={{borderWidth: 2, borderColor: 'white'}}
-                source={{
-                  uri: 'https://images.unsplash.com/photo-1477118476589-bff2c5c4cfbb?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80',
-                }}
-                size="2xl"></Avatar>
-            </View>
-            <View style={styles.userDetails}>
-              <Text style={styles.userName}>Albert Forces</Text>
-              <Text style={styles.bio}>
-                Lifestyle photographer, traveller, dreamer{' '}
-              </Text>
-              <View style={styles.followSection}>
-                <View style={styles.detailsBox}>
-                  <Text style={styles.detailsFont1}>100</Text>
-                  <Text style={styles.detailsFont2}>Posts</Text>
+            <View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingHorizontal: 20,
+                  marginTop: 20,
+                }}>
+                <View style={styles.avatar}>
+                  <Avatar
+                    style={{borderWidth: 2, borderColor: 'white'}}
+                    source={{
+                      uri: img.profileImg,
+                    }}
+                    size="xl"></Avatar>
                 </View>
-                <View style={styles.detailsBox}>
-                  <Text style={styles.detailsFont1}>50</Text>
-                  <Text style={styles.detailsFont2}>Photos</Text>
-                </View>
-                <View style={styles.detailsBox}>
-                  <Text style={styles.detailsFont1}>10k</Text>
-                  <Text style={styles.detailsFont2}>Followers</Text>
-                </View>
-                <View style={styles.detailsBox}>
-                  <Text style={styles.detailsFont1}>64</Text>
-                  <Text style={styles.detailsFont2}>Following</Text>
+
+                <View style={styles.followSection}>
+                  <View style={styles.detailsBox}>
+                    <Text style={styles.detailsFont1}>100</Text>
+                    <Text style={styles.detailsFont2}>Posts</Text>
+                  </View>
+
+                  <View style={styles.detailsBox}>
+                    <Text style={styles.detailsFont1}>10k</Text>
+                    <Text style={styles.detailsFont2}>Followers</Text>
+                  </View>
+                  <View style={styles.detailsBox}>
+                    <Text style={styles.detailsFont1}>64</Text>
+                    <Text style={styles.detailsFont2}>Following</Text>
+                  </View>
                 </View>
               </View>
+
+              <Text style={styles.bio}>{bio + ''} </Text>
+            </View>
+
+            <View style={styles.userDetails}>
               <View
                 style={{
                   width: '100%',
@@ -112,9 +115,9 @@ export default function UserDetails({navigation}) {
               Alert.alert('Modal has been closed.');
               setModalVisible(!modalVisible);
             }}>
-            <EditProfile onClose={() => setModalVisible(false)} />
+            <EditProfile onClosed={() => setModalVisible(false)} />
           </Modal>
-          <Images navigation={navigation} />
+          <Images />
           <View
             style={{
               height: 100,
@@ -150,9 +153,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
+  header: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    height: 60,
+    backgroundColor: 'white',
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
   avatar: {
     alignItems: 'center',
-    marginTop: -60,
+    // marginTop: 20,
   },
   userDetails: {
     padding: 20,
@@ -162,19 +179,21 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     fontSize: 20,
+    paddingLeft: 20,
   },
   bio: {
-    textAlign: 'center',
     fontSize: 12,
     fontWeight: '300',
     color: colors.lightGray,
-    padding: 5,
+    paddingLeft: 20,
+    padding: 10,
   },
   followSection: {
-    paddingVertical: 10,
+    // paddingVertical: 10,
     // borderWidth: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    width: '70%',
   },
   detailsBox: {
     width: screen.width / 5,
@@ -199,5 +218,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderColor: colors.lightGray,
     borderRadius: 5,
+  },
+
+  navigation: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+
+    elevation: 5,
+    width: '100%',
+    height: 50,
+
+    position: 'absolute',
+    top: 0,
+    backgroundColor: 'white',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
   },
 });

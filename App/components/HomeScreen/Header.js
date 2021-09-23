@@ -1,9 +1,12 @@
-import React from 'react';
-import {View, StyleSheet, TouchableOpacity, Image} from 'react-native';
-import {NativeBaseProvider, Text, Divider} from 'native-base';
-import {marginTop} from 'styled-system';
+import React, {useState, useEffect} from 'react';
+import {View, StyleSheet, TouchableOpacity, Image, Modal} from 'react-native';
+import {NativeBaseProvider, Text, Divider, Avatar} from 'native-base';
+import Chat from '../../screens/Chat';
+import ChatSearch from '../../screens/ChatSearch';
 
-export default function Header() {
+export default ({navigation}) => {
+  const [modalVisible, setModalVisible] = useState(false);
+
   return (
     <View
       style={{
@@ -18,15 +21,21 @@ export default function Header() {
         Social Media
       </Text>
       <View style={styles.dot}></View>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => setModalVisible(true)}>
         <Image
           source={require('../../assets/icons/direct-message.png')}
           style={{width: 40, height: 40}}
         />
       </TouchableOpacity>
+
+      <Modal
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}>
+        <ChatSearch />
+      </Modal>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

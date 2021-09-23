@@ -1,10 +1,10 @@
-import {Avatar, Text} from 'native-base';
-import React from 'react';
+import {Avatar, Text, Spinner} from 'native-base';
+import React, {useState} from 'react';
 import {StyleSheet, View, TouchableOpacity} from 'react-native';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import colors from '../../constants/colors';
 
-export default function UserHeader() {
+export default function UserHeader({img, userName}) {
   return (
     <View
       style={{
@@ -16,11 +16,11 @@ export default function UserHeader() {
       <Avatar
         style={{borderWidth: 2, borderColor: 'white'}}
         source={{
-          uri: 'https://images.unsplash.com/photo-1477118476589-bff2c5c4cfbb?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80',
+          uri: img,
         }}
         size="lg"></Avatar>
       <View style={{marginLeft: 10}}>
-        <Text fontWeight="bold">Albert Fores</Text>
+        <Text fontWeight="bold">{userName}</Text>
         <TouchableOpacity style={styles.btn}>
           <Text>
             <Fontisto

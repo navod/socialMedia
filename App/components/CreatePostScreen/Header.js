@@ -3,7 +3,7 @@ import React from 'react';
 import {View, StyleSheet, TouchableOpacity} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-export default function Header({onClose, name, states}) {
+export default function Header({onClose, name, states, onSave}) {
   return (
     <View style={styles.header}>
       <TouchableOpacity
@@ -15,7 +15,7 @@ export default function Header({onClose, name, states}) {
         {name}
       </Text>
 
-      <TouchableOpacity style={{marginRight: -30}}>
+      <TouchableOpacity style={{marginRight: -30}} onPress={() => onSave()}>
         <Text fontWeight="bold" fontSize={'xs'}>
           Done
         </Text>

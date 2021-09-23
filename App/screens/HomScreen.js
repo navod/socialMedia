@@ -1,5 +1,5 @@
 import {NativeBaseProvider, Text} from 'native-base';
-import React from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
   View,
   StyleSheet,
@@ -7,21 +7,25 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
+
 import Header from '../components/HomeScreen/Header';
 import Post from '../components/HomeScreen/Post';
 import Stories from '../components/HomeScreen/Stories';
+import {AuthContext} from '../util/AuthContext';
 
 export default function HomScreen() {
+  const {checkValue} = useContext(AuthContext);
+  useEffect(() => {
+    checkValue();
+  }, []);
   return (
     <View style={styles.container}>
-      <ScrollView>
-        <NativeBaseProvider>
-          <Header />
-          <Stories />
-          <Post />
-          <View style={{width: 50, height: 400}}></View>
-        </NativeBaseProvider>
-      </ScrollView>
+      <NativeBaseProvider>
+        <Header />
+
+        <Post />
+        <View style={{width: 50, height: 400}}></View>
+      </NativeBaseProvider>
     </View>
   );
 }

@@ -3,9 +3,10 @@ import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth';
 import {AuthContext} from '../util/AuthContext';
+import firestore from '@react-native-firebase/firestore';
 
 export default function GoogleButton() {
-  const {siginIn} = useContext(AuthContext);
+  const {siginIn, checkValue} = useContext(AuthContext);
   GoogleSignin.configure({
     webClientId:
       '837677812480-o3ndvrmoj9s48ibmcc8sgu4run1nj3np.apps.googleusercontent.com',
@@ -15,17 +16,44 @@ export default function GoogleButton() {
     // Get the users ID token
     const {idToken, user} = await GoogleSignin.signIn();
 
-    console.log(user);
     // Create a Google credential with the token
     const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
     // Sign-in the user with the credential
-    const credential = auth().signInWithCredential(googleCredential);
+    const credential = auth()
+      .signInWithCredential(googleCredential)
+      .then(creteUser => {
+        const uid = creteUser.user.uid;
+
+        const subscriber = firestore().collection('Users').doc(uid);
+        subscriber.get().then(doc => {
+          if (doc.exists) {
+            console.log('Document data:', doc.data());
+          } else {
+            // doc.data() will be undefined in this case
+            console.log('No such document!');
+
+            firestore()
+              .collection('Users')
+              .doc(uid)
+              .set({
+                bio: '',
+                profileImg:
+                  'https://firebasestorage.googleapis.com/v0/b/chatapp-36777.appspot.com/o/appDetails%2Fno-photo-available.png?alt=media&token=b2201b8c-6afc-4e59-a6dd-9d38c0b5c07c',
+                coverImg:
+                  'https://firebasestorage.googleapis.com/v0/b/chatapp-36777.appspot.com/o/appDetails%2Fpreview.png?alt=media&token=5257d0a8-6fca-4459-8930-c310c6f5939a',
+              })
+              .then(() => {
+                console.log('User added!');
+                checkValue();
+              });
+          }
+        });
+      });
 
     if (credential != null) {
       siginIn('navod');
     }
-    siginIn;
   };
 
   return (

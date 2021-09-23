@@ -31,7 +31,7 @@ import People from '../components/searchScreen/People';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import FollowRequests from '../components/NotificationScreen/FollowRequests';
 import Activity from '../components/NotificationScreen/Activity';
-import Header from '../components/NotificationScreen/Header';
+import Header from '../components/HomeScreen/Header';
 import {NativeBaseProvider} from 'native-base';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AuthContext} from '../util/AuthContext';
@@ -39,7 +39,8 @@ import {
   ConventionContex,
   ConventionContexProvider,
 } from '../util/ConvetionContext';
-import Location from '../components/CreatePostScreen/Location';
+import auth from '@react-native-firebase/auth';
+import Chat from '../screens/Chat';
 
 const MainStack = createStackNavigator();
 
@@ -67,7 +68,6 @@ const TopTabScreen = () => {
     </View>
   );
 };
-
 const NotificationTopBar = () => {
   return (
     <View style={{flex: 1}}>
@@ -92,8 +92,8 @@ const NotificationTopBar = () => {
 let tabOffSet = 0;
 const Tab = createBottomTabNavigator();
 const BottomTabScreen = () => {
-  // const {text} = useContext(ConventionContex);
-  // console.log(text);
+  const {text} = useContext(ConventionContex);
+  console.log(text);
 
   tabOffSet = useRef(new Animated.Value(0)).current;
   // x = tabOffSet;
@@ -272,14 +272,15 @@ const ModalStackScreen = () => (
       component={BottomTabScreen}
       options={{headerShown: false}}
     />
+
     <ModalStack.Screen
-      name="Location"
-      component={Location}
+      name="Chat"
+      component={Chat}
       options={{headerShown: false}}
     />
     <ModalStack.Screen
-      name="ImageView"
-      component={ImageView}
+      name="Header"
+      component={Header}
       options={{headerShown: false}}
     />
   </ModalStack.Navigator>
@@ -358,7 +359,11 @@ export default () => {
         setUserToken('123');
       },
       checkValue: () => {
-        console.log('Wade set');
+        const user = auth().currentUser;
+        if (user) {
+          return user;
+        }
+        return null;
       },
     }),
     [],
@@ -388,13 +393,15 @@ export default () => {
   return (
     <AuthContext.Provider value={authContex}>
       <ConventionContexProvider>
-        <NavigationContainer>
-          {loginState.userToken !== null ? (
+        {loginState.userToken !== null ? (
+          <NavigationContainer>
             <BottomTabScreen />
-          ) : (
+          </NavigationContainer>
+        ) : (
+          <NavigationContainer>
             <ModalStackScreen />
-          )}
-        </NavigationContainer>
+          </NavigationContainer>
+        )}
       </ConventionContexProvider>
     </AuthContext.Provider>
   );

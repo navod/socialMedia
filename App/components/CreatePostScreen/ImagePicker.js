@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import Video from 'react-native-video';
-import {useContext} from 'react/cjs/react.development';
 import {ConventionContex} from '../../util/ConvetionContext';
 
 const styles = StyleSheet.create({

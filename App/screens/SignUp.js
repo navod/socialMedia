@@ -28,6 +28,7 @@ import {
 import {KeyBoardSpacer} from '../components/KeyBoardSpacer';
 import auth from '@react-native-firebase/auth';
 import {AuthContext} from '../util/AuthContext';
+import firestore from '@react-native-firebase/firestore';
 
 export default function SignUp({navigation}) {
   const [show, setShow] = useState(false);
@@ -47,7 +48,25 @@ export default function SignUp({navigation}) {
     siginIn(email);
   };
 
-  const {siginIn} = useContext(AuthContext);
+  const {siginIn, checkValue} = useContext(AuthContext);
+
+  const saveToDB = uid => {
+    firestore()
+      .collection('Users')
+      .doc(uid)
+      .set({
+        userName: userName,
+        bio: '',
+        profileImg:
+          'https://firebasestorage.googleapis.com/v0/b/chatapp-36777.appspot.com/o/appDetails%2Fno-photo-available.png?alt=media&token=b2201b8c-6afc-4e59-a6dd-9d38c0b5c07c',
+        coverImg:
+          'https://firebasestorage.googleapis.com/v0/b/chatapp-36777.appspot.com/o/appDetails%2Fpreview.png?alt=media&token=5257d0a8-6fca-4459-8930-c310c6f5939a',
+      })
+      .then(() => {
+        console.log('User added!');
+        checkValue();
+      });
+  };
 
   const signInWithEmail = () => {
     if (
@@ -67,9 +86,11 @@ export default function SignUp({navigation}) {
           .createUserWithEmailAndPassword(email, password)
           .then(createUser => {
             createUser.user.updateProfile({displayName: userName});
+
             setStatus(true);
             setAlertDetails({title: 'Account created', states: 'success'});
             loginHandle();
+            saveToDB(createUser.user.uid);
           })
           .catch(error => {
             if (error.code === 'auth/email-already-in-use') {

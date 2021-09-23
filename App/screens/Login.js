@@ -33,7 +33,7 @@ export default function Login({navigation}) {
   const [password, setPassword] = useState('');
   const handleClick = () => setShow(!show);
 
-  const {siginIn} = useContext(AuthContext);
+  const {siginIn, checkValue} = useContext(AuthContext);
   const loginUser = () => {
     if (email == '' || password == '') {
       setStatus(true);
@@ -46,6 +46,7 @@ export default function Login({navigation}) {
         .signInWithEmailAndPassword(email, password)
         .then(res => {
           siginIn(email);
+          checkValue();
         })
         .catch(error => {
           if (error.code === 'auth/user-not-found') {

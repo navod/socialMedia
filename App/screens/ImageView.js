@@ -1,5 +1,5 @@
 import {Button, NativeBaseProvider, Tex, Menu} from 'native-base';
-import React from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
   View,
   FlatList,
@@ -18,12 +18,38 @@ import SampleData from '../data/SampleData';
 import Entypo from 'react-native-vector-icons/Entypo';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import colors from '../constants/colors';
+import firestore from '@react-native-firebase/firestore';
+import {ConventionContex} from '../util/ConvetionContext';
 
-export default function ImageView() {
+export default function ImageView({onClose}) {
   const [modalVisible, setModalVisible] = useState(false);
   const [img, setImg] = useState(0);
   const [shouldOverlapWithTrigger] = useState(false);
   const [position, setPosition] = useState('auto');
+  const [images, setImages] = useState();
+  const {userId} = useContext(ConventionContex);
+
+  useEffect(() => {
+    const list = [];
+    return (
+      firestore()
+        .collection(userId + '')
+        // Filter results
+
+        // Limit results
+
+        .get()
+        .then(querySnapshot => {
+          /* ... */
+          querySnapshot.forEach(doc => {
+            const {images} = doc.data();
+            list.push({images});
+          });
+          console.log(list);
+          setImages(list);
+        })
+    );
+  }, []);
 
   return (
     <View style={{backgroundColor: 'white', flex: 1, paddingHorizontal: 2}}>
@@ -31,12 +57,11 @@ export default function ImageView() {
         <Header
           name="Photos"
           onClose={() => {
-            setModalVisible(false);
-            console.log('hello');
+            onClose();
           }}
         />
         <FlatList
-          data={SampleData}
+          data={images}
           keyExtractor={(item, index) => index}
           numColumns={4}
           // contentContainerStyle={{backgroundColor: 'white', flex: 1}}
@@ -64,7 +89,7 @@ export default function ImageView() {
                   borderRadius: 4,
                 }}
                 source={{
-                  uri: item,
+                  uri: item.images,
                   priority: FastImage.priority.normal,
                 }}
                 resizeMode={FastImage.resizeMode.cover}

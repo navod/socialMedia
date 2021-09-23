@@ -1,3 +1,4 @@
+import {useNavigation} from '@react-navigation/core';
 import React, {useState} from 'react';
 import {
   View,
@@ -5,17 +6,20 @@ import {
   StyleSheet,
   Dimensions,
   TouchableOpacity,
+  Modal,
 } from 'react-native';
 import FastImage from 'react-native-fast-image';
+import ImageView from '../../screens/ImageView';
 
-export default function Images({navigation}) {
+export default function Images(navigation) {
   const [imgSize, setImgSize] = useState(4);
+
   return (
     <View style={styles.container}>
       <View style={styles.secondContainer}>
         <Text style={styles.text}>Photos</Text>
         <View style={styles.subContainer}>
-          {imgSize === 4 && <Size4 navigation={navigation}></Size4>}
+          {imgSize === 4 && <Size4></Size4>}
           {imgSize === 3 && <Size3></Size3>}
           {imgSize === 2 && <Size2></Size2>}
           {imgSize === 1 && <Size1></Size1>}
@@ -25,7 +29,9 @@ export default function Images({navigation}) {
   );
 }
 //
-const Size4 = ({navigation}) => {
+const Size4 = () => {
+  const [modalVisible, setModalVisible] = useState(false);
+  // console.log(navigation);
   return (
     <View style={{flexDirection: 'row', height: '100%'}}>
       <FastImage
@@ -57,6 +63,9 @@ const Size4 = ({navigation}) => {
           />
         </View>
 
+        <Modal visible={modalVisible}>
+          <ImageView onClose={() => setModalVisible(false)} />
+        </Modal>
         <View style={styles.imgGroup}>
           <FastImage
             style={styles.smallImg}
@@ -74,7 +83,9 @@ const Size4 = ({navigation}) => {
                 backgroundColor: 'white',
                 borderRadius: 10,
               }}
-              onPress={() => navigation.push('ImageView')}>
+              onPress={() => {
+                setModalVisible(true);
+              }}>
               <FastImage
                 style={{
                   width: '100%',
